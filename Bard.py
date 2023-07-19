@@ -103,7 +103,9 @@ class Chatbot:
         # Find "SNlM0e":"<ID>"
         if resp.status_code != 200:
             raise Exception("Could not get Google Bard")
+        
         SNlM0e = re.search(r"SNlM0e\":\"(.*?)\"", resp.text).group(1)
+        
         return SNlM0e
 
     def ask(self, message: str) -> dict:
@@ -146,12 +148,13 @@ class Chatbot:
         chat_data = json.loads(resp.content.splitlines()[3])[0][2]
         if not chat_data:
             return {"content": f"Google Bard encountered an error: {resp.content}."}
+        
         json_chat_data = json.loads(chat_data)
         results = {
-            "content": json_chat_data[0][0],
-            "conversation_id": json_chat_data[1][0],
-            "response_id": json_chat_data[1][1],
-            "factualityQueries": json_chat_data[3],
+            "content": json_chat_data[0][0]if json_chat_data[0] is not None else "",
+            "conversation_id": json_chat_data[1][0]if json_chat_data[1] is not None else "",
+            "response_id": json_chat_data[1][1]if json_chat_data[1] is not None else "",
+            "factualityQueries": json_chat_data[3]if json_chat_data[3] is not None else "",
             "textQuery": json_chat_data[2][0] if json_chat_data[2] is not None else "",
             "choices": [{"id": i[0], "content": i[1]} for i in json_chat_data[4]],
         }
